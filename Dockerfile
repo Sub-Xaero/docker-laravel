@@ -1,13 +1,24 @@
 FROM php:apache
 LABEL author="Dylan Clarke"
 RUN apt-get update 
-RUN apt-get install -y curl zlib1g-dev git-all 
+RUN apt-get install -y curl zlib1g-dev git-all libxml2-dev
 
 RUN echo "memory_limit=-1" > "$PHP_INI_DIR/conf.d/memory-limit.ini" \
  && echo "date.timezone=${PHP_TIMEZONE:-UTC}" > "$PHP_INI_DIR/conf.d/date_timezone.ini"
 
-RUN docker-php-ext-install zip
+RUN docker-php-ext-install zip 
+RUN docker-php-ext-install pdo 
+RUN docker-php-ext-install pdo_mysql 
+# RUN docker-php-ext-install mysqli 
+# RUN docker-php-ext-install mbstring 
+# RUN docker-php-ext-install xml 
+# RUN docker-php-ext-install ctype 
+# RUN docker-php-ext-install json 
+# RUN docker-php-ext-install openssl 
+
 RUN a2enmod rewrite
+RUN a2enmod ssl
+
 ENV COMPOSER_ALLOW_SUPERUSER 1
 ENV COMPOSER_HOME /tmp
 ENV COMPOSER_VERSION 1.6.4
@@ -27,3 +38,4 @@ RUN curl -s -f -L -o /tmp/installer.php https://raw.githubusercontent.com/compos
 
 RUN composer global require "laravel/installer"
 COPY 000-default.conf /etc/apache2/sites-available/000-default.conf
+RUN service apache2 restart
